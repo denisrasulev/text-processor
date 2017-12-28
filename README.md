@@ -12,8 +12,6 @@
 
 * Create N-grams
 
-* Payment?
-
 * Links to download
 
 ### What to work on: ###
