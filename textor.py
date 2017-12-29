@@ -69,24 +69,40 @@ def check_if_exists(file_name):
 
 
 # create args parser and add possible arguments
+# TODO: print help if no args were supplied
+# TODO: check if we can format help: -i INPUT --input INPUT -> -i, --input INPUT
 parser = argparse.ArgumentParser(
     prog='textor',
     description="Script to clean source text from all and/or user selected elements.",
     epilog="textor v0.1. ©2017 Denis Rasulev. All Rights Reserved.")
-parser.add_argument('-i', '--input', type=argparse.FileType('r', encoding='UTF-8'), help="source text file")
+parser.add_argument('-i', '--input', type=argparse.FileType('r'), help="source text file")
 parser.add_argument('-o', '--output', type=check_if_exists, help="output text file")
 parser.add_argument('-s', '--settings', help="settings on what to clean from source")
 
 # parse arguments
 args = parser.parse_args()
 
-#
+
+# function to get human readable size of file
+# https://stackoverflow.com/a/1094933/4440387
+# TODO: replace old formatting with modern one
+def sizeof_fmt(num, suffix='b'):
+    for unit in [' ', ' K', ' M', ' G', ' T', ' P', ' E', ' Z']:
+        if abs(num) < 1024.0:
+            return "%3.2f%s%s" % (num, unit, suffix)
+        num /= 1024.0
+    return "%.2f%s%s" % (num, ' Y', suffix)
+
+
+# print args
 print('\n')
 print("Input: {}".format(os.path.abspath(args.input.name)))
+print("Input file size: {}".format(sizeof_fmt(os.path.getsize(args.input.name))))
 print("Output: {}".format(args.output))
 print("Settings: {}".format(args.settings))
 print("Overwrite: {}".format(output_file_overwrite))
 print('\n')
 
-source_text = args.input.read()
+# print input file stats
+source_text = args.input.read(100)
 print(source_text)
