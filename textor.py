@@ -18,11 +18,13 @@ Project to create text cleaning script to clean text from user selected things.
 
 # import required modules
 import os
+import re
 import sys
+import string
 import argparse
 
 
-# colors class to use in outputs
+# color class to use in outputs
 class Color:
     HEAD = '\033[95m'
     OKBL = '\033[94m'
@@ -103,6 +105,17 @@ print("Settings: {}".format(args.settings))
 print("Overwrite: {}".format(output_file_overwrite))
 print('\n')
 
-# print input file stats
+# print input file stats (100 symbols)
 source_text = args.input.read(100)
 print(source_text)
+
+# main part goes here - output list of words only
+#clean_text = ''.join(source_text.split())
+#clean_text = re.sub(r'[\W]', ' ', clean_text)
+#print(clean_text)
+
+clean_text = source_text.split()
+words = [word.lower() for word in clean_text]
+table = str.maketrans('', '', string.punctuation)
+stripped = [w.translate(table) for w in clean_text]
+print(stripped[:100])
