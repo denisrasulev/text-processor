@@ -74,9 +74,9 @@ def check_if_exists(file_name):
 # TODO: print help if no args were supplied
 # TODO: check if we can format help: -i INPUT --input INPUT -> -i, --input INPUT
 parser = argparse.ArgumentParser(
-    prog='textor',
+    prog='tp',
     description="Script to clean source text from all and/or user selected elements.",
-    epilog="textor v0.1. ©2017 Denis Rasulev. All Rights Reserved.")
+    epilog="tp (text processor) ver 0.1. © 2017 Denis Rasulev. All Rights Reserved.")
 parser.add_argument('-i', '--input', type=argparse.FileType('r'), help="source text file")
 parser.add_argument('-o', '--output', type=check_if_exists, help="output text file")
 parser.add_argument('-s', '--settings', help="settings on what to clean from source")
@@ -110,12 +110,42 @@ source_text = args.input.read(100)
 print(source_text)
 
 # main part goes here - output list of words only
-#clean_text = ''.join(source_text.split())
-#clean_text = re.sub(r'[\W]', ' ', clean_text)
-#print(clean_text)
 
 clean_text = source_text.split()
 words = [word.lower() for word in clean_text]
 table = str.maketrans('', '', string.punctuation)
 stripped = [w.translate(table) for w in clean_text]
 print(stripped[:100])
+
+
+def clean(text):
+    """Clean text from elements"""
+    text = re.sub(r'[\W]', '', text)
+    text = re.sub(r'[\w]', '', text)
+
+    return text
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
