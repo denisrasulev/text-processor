@@ -20,7 +20,6 @@ Project to create text cleaning script to clean text from user selected things.
 import os
 import re
 import sys
-import string
 import argparse
 
 
@@ -105,17 +104,12 @@ print("Settings: {}".format(args.settings))
 print("Overwrite: {}".format(output_file_overwrite))
 print('\n')
 
-# print input file stats (100 symbols)
-source_text = args.input.read(100)
-print(source_text)
-
 # main part goes here - output list of words only
+source_text = args.input.read()
 
-clean_text = source_text.split()
-words = [word.lower() for word in clean_text]
-table = str.maketrans('', '', string.punctuation)
-stripped = [w.translate(table) for w in clean_text]
-print(stripped[:100])
+clean_text = re.sub('\s+', ' ', source_text.lower()).strip().split()
+
+print(clean_text)
 
 
 def clean(text):
