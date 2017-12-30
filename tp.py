@@ -20,6 +20,7 @@ Project to create text cleaning script to clean text from user selected things.
 import os
 import re
 import sys
+import string
 import argparse
 
 
@@ -78,7 +79,8 @@ parser = argparse.ArgumentParser(
     epilog="tp (text processor) ver 0.1. © 2017 Denis Rasulev. All Rights Reserved.")
 parser.add_argument('-i', '--input', type=argparse.FileType('r'), help="source text file")
 parser.add_argument('-o', '--output', type=check_if_exists, help="output text file")
-parser.add_argument('-s', '--settings', help="settings on what to clean from source")
+parser.add_argument('-f', '--format', help="output file format: csv or txt")
+# TODO: parse format setting and validate it
 
 # parse arguments
 args = parser.parse_args()
@@ -100,34 +102,63 @@ print('\n')
 print("Input: {}".format(os.path.abspath(args.input.name)))
 print("Input file size: {}".format(sizeof_fmt(os.path.getsize(args.input.name))))
 print("Output: {}".format(args.output))
-print("Settings: {}".format(args.settings))
+print("Format: {}".format(args.format))
 print("Overwrite: {}".format(output_file_overwrite))
 print('\n')
 
 # main part goes here - output list of words only
 source_text = args.input.read()
 
-clean_text = re.sub('\s+', ' ', source_text.lower()).strip().split()
-
-print(clean_text)
+# detect and print out text encoding
+# TODO: encoding
 
 
 def clean(text):
     """Clean text from elements"""
-    text = re.sub(r'[\W]', '', text)
-    text = re.sub(r'[\w]', '', text)
+
+    # remove all punctuation
+    # TODO: How does it work?
+    table = str.maketrans({key: ' ' for key in string.punctuation})
+    text = text.translate(table)
+
+    # remove punctuation in the beginning and end of words
+    # code here
+
+    # convert to lowercase
+    text = text.lower()
+
+    # split by words
+    text = text.split()
 
     return text
 
 
+cleaned_text = clean(source_text)
+print(cleaned_text)
+
+# save text to file
+
+f = open(args.output, 'w')
 
 
+def form_output(ext):
+    """Convert processed word list to user selected file format - csv or txt.
+       Default is csv."""
+    return {
+        'csv': ', '.join(cleaned_text),
+        'txt': '\n'.join(cleaned_text)
+    }.get(ext, ', '.join(cleaned_text))
 
 
+out = form_output(args.format)
 
+# save
+f.write(out)
+f.close()
 
-
-
+# unused code snippets:
+# text = re.sub('\s+', ' ', text)
+# text = text.strip()
 
 
 
