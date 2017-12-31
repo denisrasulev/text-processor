@@ -44,11 +44,11 @@ def check_if_exists(file_name):
 
     # check if file already exists and if yes, ask what user wants to do with it - append or overwrite
     if os.path.exists(file_name):
-        answer = input("Output file already exists. (A)ppend (default) to it or (O)verwrite it? ")
+        answer = input("File '" + file_name + "' already exists. (A)ppend (default) to it or (O)verwrite it? ")
 
         # if user wants to overwrite file, give notice and set global variable to True
         if answer in ['o', 'O', '0']:
-            print(Color.WARN + "Output file will be overwritten!" + Color.ENDC)
+            print(Color.WARN + "File '" + file_name + "' will be overwritten!" + Color.ENDC)
             output_file_overwrite = True
 
         # if user wants to append file, give notice and set global variable to False
@@ -134,16 +134,19 @@ def clean(text):
 
 
 cleaned_text = clean(source_text)
-print(cleaned_text)
 
 # save text to file
 
-f = open(args.output, 'w')
+if output_file_overwrite:
+    write_mode = 'w'  # append if already exists
+else:
+    write_mode = 'a'  # make a new file if not
+
+f = open(args.output, write_mode)
 
 
 def form_output(ext):
-    """Convert processed word list to user selected file format - csv or txt.
-       Default is csv."""
+    """Convert processed word list to user selected file format - csv (default) or txt."""
     return {
         'csv': ', '.join(cleaned_text),
         'txt': '\n'.join(cleaned_text)
