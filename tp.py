@@ -48,7 +48,7 @@ def check_if_exists(file_name):
 
         # if user wants to overwrite file, give notice and set global variable to True
         if answer in ['o', 'O', '0']:
-            print(Color.WARN + "File '" + file_name + "' will be overwritten!" + Color.ENDC)
+            print(Color.WARN + "ATTENTION: File will be overwritten!" + Color.ENDC)
             output_file_overwrite = True
 
         # if user wants to append file, give notice and set global variable to False
@@ -72,13 +72,13 @@ def check_if_exists(file_name):
 
 # create args parser and add possible arguments
 # TODO: print help if no args were supplied
-# TODO: check if we can format help: -i INPUT --input INPUT -> -i, --input INPUT
+# TODO: check if we can format help: -i IFILE --ifile IFILE -> -i, --ifile IFILE
 parser = argparse.ArgumentParser(
     prog='tp',
     description="Script to clean source text from all and/or user selected elements.",
     epilog="tp (text processor) ver 0.1. © 2017 Denis Rasulev. All Rights Reserved.")
-parser.add_argument('-i', '--input', type=argparse.FileType('r'), help="source text file")
-parser.add_argument('-o', '--output', type=check_if_exists, help="output text file")
+parser.add_argument('-i', '--ifile', type=argparse.FileType('r'), help="source text file")
+parser.add_argument('-o', '--ofile', type=check_if_exists, help="output text file")
 parser.add_argument('-f', '--format', help="output file format: csv or txt")
 # TODO: parse format setting and validate it
 
@@ -99,15 +99,15 @@ def sizeof_fmt(num, suffix='b'):
 
 # print args
 print('\n')
-print("Input: {}".format(os.path.abspath(args.input.name)))
-print("Input file size: {}".format(sizeof_fmt(os.path.getsize(args.input.name))))
-print("Output: {}".format(args.output))
-print("Format: {}".format(args.format))
-print("Overwrite: {}".format(output_file_overwrite))
+print("Input file: {}".format(os.path.abspath(args.ifile.name)))
+print("Input file size: {}".format(sizeof_fmt(os.path.getsize(args.ifile.name))))
+print("Output file: {}".format(args.ofile))
+print("Selected Format: {}".format(args.format))
+print("Overwrite flag: {}".format(output_file_overwrite))
 print('\n')
 
 # main part goes here - output list of words only
-source_text = args.input.read()
+source_text = args.ifile.read()
 
 # detect and print out text encoding
 # TODO: encoding
@@ -122,7 +122,13 @@ def clean(text):
     text = text.translate(table)
 
     # remove punctuation in the beginning and end of words
-    # code here
+    # TODO: punctuation in the beginning and end of words
+
+    # remove single letters
+    text = re.sub(r'(?i)\b[a-z]\b', '', text)
+
+    # remove numbers
+    text = re.sub(r'[0-9]', '', text)
 
     # convert to lowercase
     text = text.lower()
@@ -135,45 +141,32 @@ def clean(text):
 
 cleaned_text = clean(source_text)
 
-# save text to file
+# if we only need unique words
+cleaned_text = set(cleaned_text)
 
+# save text to file
 if output_file_overwrite:
     write_mode = 'w'  # append if already exists
 else:
     write_mode = 'a'  # make a new file if not
 
-f = open(args.output, write_mode)
+# open file in required mode - append or oveerwrite
+f = open(args.ofile, write_mode)
 
 
 def form_output(ext):
-    """Convert processed word list to user selected file format - csv (default) or txt."""
+    """Convert processed word list to user selected file format - csv (default) or txt (one word per line)."""
     return {
         'csv': ', '.join(cleaned_text),
         'txt': '\n'.join(cleaned_text)
     }.get(ext, ', '.join(cleaned_text))
 
 
+# convert words list to user selected format - csv (default) or txt (one word per line)
 out = form_output(args.format)
 
-# save
+# write to file and close
 f.write(out)
 f.close()
 
-# unused code snippets:
-# text = re.sub('\s+', ' ', text)
-# text = text.strip()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# TODO: calculate size of all processed files - find file size and add it to saved number
