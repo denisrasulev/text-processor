@@ -18,25 +18,30 @@ Project to create text cleaning script to clean text from user selected things.
 
 # import required modules
 import os
-import re
 import sys
-import string
+import helper
 import argparse
+import chardet
 
 
-# color class to use in outputs
+# class to define colors for outputs, defines colors as escape sequences
 class Color:
-    HEAD = '\033[95m'
-    OKBL = '\033[94m'
-    OKGR = '\033[92m'
-    FAIL = '\033[93m'
-    WARN = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDR = '\033[4m'
+    def __init__(self):
+        self.HEAD = '\033[95m'
+        self.OKBL = '\033[94m'
+        self.OKGR = '\033[92m'
+        self.FAIL = '\033[93m'
+        self.WARN = '\033[91m'
+        self.ENDC = '\033[0m'
+        self.BOLD = '\033[1m'
+        self.UNDR = '\033[4m'
 
 
-# function to check file existence
+# create instance
+clr = Color()
+
+
+# function to check if file exists
 def check_if_exists(file_name):
     """Check if output file already exists and propose to append to it or overwrite it."""
     # global variable to know if we shall append or overwrite output file
@@ -48,7 +53,7 @@ def check_if_exists(file_name):
 
         # if user wants to overwrite file, give notice and set global variable to True
         if answer in ['o', 'O', '0']:
-            print(Color.WARN + "ATTENTION: File will be overwritten!" + Color.ENDC)
+            print(clr.WARN + "ATTENTION: File will be overwritten!" + clr.ENDC)
             output_file_overwrite = True
 
         # if user wants to append file, give notice and set global variable to False
@@ -58,8 +63,8 @@ def check_if_exists(file_name):
 
         # if user entered anything else, give notice and exit
         else:
-            print(Color.FAIL + "Please, enter 'A' to append information to the output file or 'O' to overwrite it."
-                  + Color.ENDC)
+            print(clr.FAIL + "Please, enter 'A' to append information to the output file or 'O' to overwrite it."
+                  + clr.ENDC)
             sys.exit(0)
 
     # if file does not exist then set global variable to True since new file will be created
@@ -82,73 +87,42 @@ parser.add_argument('-o', '--ofile', type=check_if_exists, help="output text fil
 parser.add_argument('-f', '--format', help="output file format: csv or txt")
 # TODO: parse format setting and validate it
 
+
 # parse arguments
 args = parser.parse_args()
 
 
-# function to get human readable size of file
-# https://stackoverflow.com/a/1094933/4440387
-# TODO: replace old formatting with modern one
-def sizeof_fmt(num, suffix='b'):
-    for unit in [' ', ' K', ' M', ' G', ' T', ' P', ' E', ' Z']:
-        if abs(num) < 1024.0:
-            return "%3.2f%s%s" % (num, unit, suffix)
-        num /= 1024.0
-    return "%.2f%s%s" % (num, ' Y', suffix)
+# detect input file encoding
+input_file = open(args.ifile.name, 'rb').read()
+f_encoding = chardet.detect(input_file)['encoding']
 
 
 # print args
 print('\n')
-print("Input file: {}".format(os.path.abspath(args.ifile.name)))
-print("Input file size: {}".format(sizeof_fmt(os.path.getsize(args.ifile.name))))
-print("Output file: {}".format(args.ofile))
-print("Selected Format: {}".format(args.format))
-print("Overwrite flag: {}".format(output_file_overwrite))
+print("Input file path     : {}".format(os.path.abspath(args.ifile.name)))
+print("Input file size     : {}".format(helper.sizeof_fmt(os.path.getsize(args.ifile.name))))
+print("Input file encoding : {}".format(f_encoding))
+print("Output file path    : {}".format(os.path.abspath(args.ofile)))
+print("Output file format  : {}".format(args.format))
+print("Overwrite flag      : {}".format(output_file_overwrite))
 print('\n')
 
 # main part goes here - output list of words only
 source_text = args.ifile.read()
+cleaned_text = helper.remove_punctuation_all(source_text)
 
-# detect and print out text encoding
-# TODO: encoding
-
-
-def clean(text):
-    """Clean text from elements"""
-
-    # remove all punctuation
-    # TODO: How does it work?
-    table = str.maketrans({key: ' ' for key in string.punctuation})
-    text = text.translate(table)
-
-    # remove punctuation in the beginning and end of words
-    # TODO: punctuation in the beginning and end of words
-
-    # remove single letters
-    text = re.sub(r'(?i)\b[a-z]\b', '', text)
-
-    # remove numbers
-    text = re.sub(r'[0-9]', '', text)
-
-    # convert to lowercase
-    text = text.lower()
-
-    # split by words
-    text = text.split()
-
-    return text
-
-
-cleaned_text = clean(source_text)
 
 # if we only need unique words
-cleaned_text = set(cleaned_text)
+if False:
+    cleaned_text = set(cleaned_text)
+
 
 # save text to file
 if output_file_overwrite:
     write_mode = 'w'  # append if already exists
 else:
     write_mode = 'a'  # make a new file if not
+
 
 # open file in required mode - append or oveerwrite
 f = open(args.ofile, write_mode)
@@ -164,6 +138,7 @@ def form_output(ext):
 
 # convert words list to user selected format - csv (default) or txt (one word per line)
 out = form_output(args.format)
+
 
 # write to file and close
 f.write(out)
