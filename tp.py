@@ -43,7 +43,7 @@ clr = Color()
 
 # function to check if file exists
 def check_if_exists(file_name):
-    """Check if output file already exists and propose to append to it or overwrite it."""
+    """Check if output file name already exists and then propose to append to it or overwrite it."""
     # global variable to know if we shall append or overwrite output file
     global output_file_overwrite
 
@@ -61,7 +61,7 @@ def check_if_exists(file_name):
             print("Output file will be appended.")
             output_file_overwrite = False
 
-        # if user entered anything else, give notice and exit
+        # if user enters anything else, give help notice and exit
         else:
             print(clr.FAIL + "Please, enter 'A' to append information to the output file or 'O' to overwrite it."
                   + clr.ENDC)
@@ -75,25 +75,69 @@ def check_if_exists(file_name):
     return file_name
 
 
-# create args parser and add possible arguments
-# TODO: print help if no args were supplied
-# TODO: check if we can format help: -i IFILE --ifile IFILE -> -i, --ifile IFILE
+# description of what the script does
+description = """
+Script shows this help message and exits if called without any arguments or with optional '-h', '--help'.
+Given one parameter, the script assumes it is a SOURCE and attempts to read it for further processing.
+
+Script cleans SOURCE from all (default) or only user selected elements and saves the result into a file.
+By default it saves result as comma-separated list of words in lower case.
+
+These are elements removed from a source by default:
+- punctuation
+- single letters
+- extra spaces
+- stop words
+- numbers
+
+Some extra work done by script:
+- spelling correction, including common abbreviations
+- non-unicode characters are converted to unicode analogs
+
+If output file name was not specified, the result is saved to .csv file named as SOURCE with appended '_cleaned' word.
+For instance, if you called the script as 'tp.py text.txt' then the result will be saved to 'text_cleaned.csv' file.
+"""
+
+# create arguments parser
 parser = argparse.ArgumentParser(
-    prog='tp',
-    description="Script to clean source text from all and/or user selected elements.",
-    epilog="tp (text processor) ver 0.1. © 2017 Denis Rasulev. All Rights Reserved.")
-parser.add_argument('-i', '--ifile', type=argparse.FileType('r'), help="source text file")
-parser.add_argument('-o', '--ofile', type=check_if_exists, help="output text file")
-parser.add_argument('-f', '--format', help="output file format: csv or txt")
-# TODO: parse format setting and validate it
+    prog='tp.py',
+    add_help=False,
+    usage='%(prog)s source [-o output] [-f format]',
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+    description=description,
+    epilog="Text Processor - ver 0.1 © 2017 Denis Rasulev. All Rights Reserved.")
+
+# add arguments
+parser.add_argument('ifile',
+                    metavar='SOURCE', type=argparse.FileType('r'),
+                    help="source to be processed")
+parser.add_argument('-o', '--ofile',
+                    metavar='OUTPUT', type=check_if_exists,
+                    help="specifies output file name")
+parser.add_argument('-f', '--format',
+                    metavar='FORMAT',
+                    default='csv',
+                    help="specifies output file format: csv or txt")
 
 
-# parse arguments
+# if script started without any arguments, print help and exit
+if len(sys.argv) < 2:
+    parser.print_help()
+    sys.exit(0)
+
+
+# if one or more arguments were provided, parse arguments
 args = parser.parse_args()
 
+# TODO: check if http is in the source name and create getter for it
+# check if user provided URL as a SOURCE
+if args.ifile.name.startswith('http'):
+    import urllib.request
+    input_file = urllib.request.urlopen(args.ifile.name).read()
+else:
+    input_file = open(args.ifile.name, 'rb').read()
 
 # detect input file encoding
-input_file = open(args.ifile.name, 'rb').read()
 f_encoding = chardet.detect(input_file)['encoding']
 
 
