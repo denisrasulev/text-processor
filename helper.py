@@ -20,32 +20,6 @@ def remove_punctuation_all(text):
     table = str.maketrans('', '', string.punctuation)
     text = text.translate(table)
 
-    # split by words
-    text = text.split()
-
-    return text
-
-
-def remove_punctuation_side(text, side='both'):
-    """Remove punctuation from selected side of a word or both"""
-
-    # split text by words
-    text = text.split()
-
-    if side == 'beg':
-        # remove punctuation in the beginning of words
-        text = [word.lstrip(string.punctuation) for word in text]
-
-    if side == 'end':
-        # remove punctuation in the end of words
-        text = [word.rstrip(string.punctuation) for word in text]
-
-    if side == 'both':
-        # remove punctuation in the beginning and end of words
-        text = [word.strip(string.punctuation) for word in text]
-
-    text = ''.join(text)
-
     return text
 
 
@@ -54,23 +28,5 @@ def remove_numbers_all(text):
 
     table = str.maketrans('', '', string.digits)
     text = text.translate(table)
-
-    return text
-
-
-def clean(text):
-    """Clean text from elements"""
-
-    # split by words
-    text = text.split()
-
-    # remove single letters
-    text = re.sub(r'\b[a-z]\b', '', text)
-
-    # convert to lowercase
-    text = text.lower()
-
-    # split by words
-    text = text.split()
 
     return text

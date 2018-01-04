@@ -52,24 +52,23 @@ def check_if_exists(file_name):
     # - append or overwrite
     if os.path.exists(file_name):
         answer = input(color.WARN + "\nWarning: " + color.ENDC +
-                       "File '" + file_name + "' already exists."
-                       "\n(" + color.BOLD + "A" + color.ENDC + ")ppend (default)"
+                       "File '" + file_name + "' already exists.\n"
+                       "(" + color.BOLD + "A" + color.ENDC + ")ppend (default)"
                        " to it or (" + color.BOLD + "O" + color.ENDC + ")verwrite it? ")
 
-        # if user wants to overwrite file, give notice and set global variable to True
+        # if user wants to overwrite file, notify and set global variable to True
         if answer in ['o', 'O', '0']:
             print("File will be overwritten!")
             output_file_overwrite = True
 
-        # if user wants to append file, give notice and set global variable to False
+        # if user wants to append file, notify and set global variable to False
         elif answer in ['a', 'A', '']:
             print("Output file will be appended.")
             output_file_overwrite = False
 
         # if user enters anything else, give help notice and exit
         else:
-            print(color.FAIL + "Please, enter 'A' to append information to the output file or 'O' to overwrite it."
-                  + color.ENDC)
+            print("Incorrect input, script stopped. Run again.")
             sys.exit(0)
 
     # if file does not exist then set global variable to True since new file will be created
@@ -160,9 +159,12 @@ else:
     input_file = open(args.ifile, 'rb').read()
     f_encoding = chardet.detect(input_file)['encoding']
 
+extension = ".csv"
+if args.format == 'txt':
+    extension = ".txt"
 
 if args.ofile is None:
-    args.ofile = os.path.splitext(args.ifile)[0] + "_cleaned" + os.path.splitext(args.ifile)[1]
+    args.ofile = os.path.splitext(args.ifile)[0] + "_cleaned" + extension
     check_if_exists(args.ofile)
 
 
@@ -181,6 +183,8 @@ f = open(args.ifile, 'r')
 source_text = f.read()
 
 cleaned_text = helper.remove_punctuation_all(source_text)
+cleaned_text = helper.remove_numbers_all(cleaned_text)
+cleaned_text = cleaned_text.split()
 
 # if we only need unique words
 if False:
