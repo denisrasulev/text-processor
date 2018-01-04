@@ -33,7 +33,6 @@ class Color:
     def __init__(self):
         self.OKGR = '\033[92m'
         self.FAIL = '\033[93m'
-        # self.WARN = '\033[91m'
         self.WARN = '\033[33m'
         self.ENDC = '\033[0m'
         self.BOLD = '\033[1m'
@@ -53,11 +52,13 @@ def check_if_exists(file_name):
     # check if file already exists and if yes, ask what user wants to do with it
     # - append or overwrite
     if os.path.exists(file_name):
-        answer = input("File '" + file_name + "' already exists.\n(A)ppend (default) to it or (O)verwrite it? ")
+        answer = input(color.WARN + "\nWarning: " + color.ENDC +
+                       "File '" + file_name + "' already exists."
+                       "\n(A)ppend (default) to it or (O)verwrite it? ")
 
         # if user wants to overwrite file, give notice and set global variable to True
         if answer in ['o', 'O', '0']:
-            print(color.WARN + "ATTENTION: File will be overwritten!" + color.ENDC)
+            print("File will be overwritten!")
             output_file_overwrite = True
 
         # if user wants to append file, give notice and set global variable to False
@@ -179,12 +180,7 @@ print('\n')
 f = open(args.ifile, 'r')
 source_text = f.read()
 
-start = time.time()
-print("Pricessing started at " + str(start))
 cleaned_text = helper.remove_punctuation_all(source_text)
-end = time.time()
-print("Pricessing ended at " + str(end))
-print("Duration: " + str(end - start))
 
 # if we only need unique words
 if False:
