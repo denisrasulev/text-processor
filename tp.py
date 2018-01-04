@@ -20,7 +20,6 @@ Script to clean text from all or user selected things.
 # import required modules
 import os
 import sys
-import time
 import argparse
 import chardet
 import helper
@@ -54,7 +53,8 @@ def check_if_exists(file_name):
     if os.path.exists(file_name):
         answer = input(color.WARN + "\nWarning: " + color.ENDC +
                        "File '" + file_name + "' already exists."
-                       "\n(A)ppend (default) to it or (O)verwrite it? ")
+                       "\n(" + color.BOLD + "A" + color.ENDC + ")ppend (default)"
+                       " to it or (" + color.BOLD + "O" + color.ENDC + ")verwrite it? ")
 
         # if user wants to overwrite file, give notice and set global variable to True
         if answer in ['o', 'O', '0']:
@@ -162,7 +162,7 @@ else:
 
 
 if args.ofile is None:
-    args.ofile = os.path.splitext(args.ifile)[0] + "_cleaned.csv"  # + os.path.splitext(args.ifile)[1]
+    args.ofile = os.path.splitext(args.ifile)[0] + "_cleaned" + os.path.splitext(args.ifile)[1]
     check_if_exists(args.ofile)
 
 

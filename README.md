@@ -1,6 +1,6 @@
-# **Text Tool** #
+# **Text Processor** #
 
-## Project for app to clean and tokenize texts ##
+## Python script to clean and tokenize texts ##
 
 ### Here are some basic ideas: ###
 
