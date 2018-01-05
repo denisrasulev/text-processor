@@ -1,21 +1,20 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
-"""
-Script to clean text from all or user selected things.
-
-- Called without any parameters it will show help
-- Called with file input name only, it will show file stats, i.e. file size,
-  number of words, and clean from everything and save lower case words list
-  in csv format.
-- Rest is according to the parameters
-
-1. Open file
-2. Get / show / save file stats
-3. User selected options for cleaning: either by args / options or via GUI
-4. Process text
-5. Save output in user selected format: plain text, csv, ?
-"""
+################################################################################
+#                                                                              #
+#           Script to clean text from all or user selected things              #
+#                                                                              #
+# - Called without any parameters it will show help                            #
+# - Called with file input name only, it will show file stats, i.e. file size, #
+#  number of words, and clean from everything and save lower case words list   #
+#  in csv format.                                                              #
+# - Rest is according to the parameters                                        #
+#                                                                              #
+# 1. Open file                                                                 #
+# 2. Get / show / save file stats                                              #
+# 3. User selected options for cleaning: either by args / options or via GUI   #
+# 4. Process text                                                              #
+# 5. Save output in user selected format: plain text, csv, ?                   #
+#                                                                              #
+################################################################################
 
 # import required modules
 import os
@@ -203,7 +202,8 @@ f = open(args.ofile, write_mode)
 
 
 def form_output(ext):
-    """Convert processed word list to user selected file format - csv (default) or txt (one word per line)."""
+    """Convert processed word list to user selected file format - csv (default)
+    or txt (one word per line)."""
     return {
         'csv': ', '.join(cleaned_text),
         'txt': '\n'.join(cleaned_text)
