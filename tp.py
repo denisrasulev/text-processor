@@ -20,8 +20,7 @@
 import os
 import sys
 import argparse
-import chardet
-import helper
+import helpers
 
 
 # class to define colors for messages, defines colors as escape sequences
@@ -104,6 +103,8 @@ named as SOURCE with appended '_cleaned' word. For instance, if you called
 'tp.py text.txt' then the result will be saved to 'text_cleaned.csv' file.
 """
 
+epilog = "Text Processor. Ver 0.1 (c) 2017 Denis Rasulev. All Rights Reserved."
+
 # create arguments parser
 parser = argparse.ArgumentParser(
     prog='tp.py',
@@ -111,11 +112,11 @@ parser = argparse.ArgumentParser(
     usage='%(prog)s source [-o output] [-f format]',
     formatter_class=argparse.RawDescriptionHelpFormatter,
     description=description,
-    epilog="Text Processor. Ver 0.1 ©2017 Denis Rasulev. All Rights Reserved.")
+    epilog=epilog)
 
 # add arguments
 parser.add_argument('ifile',
-                    metavar='SOURCE',  # type=argparse.FileType('r'),
+                    metavar='SOURCE',
                     help="source to be processed")
 parser.add_argument('-o', '--ofile',
                     metavar='OUTPUT', type=check_if_exists,
@@ -128,8 +129,11 @@ parser.add_argument('-f', '--format',
 
 # if script called without any arguments, print short usage note and exit
 if len(sys.argv) == 1:
-    print("usage: tp.py source [-o output] [-f format]")
-    print("help : tp.py -h, --help")
+    print("usage: tp.py SOURCE [-o OUTPUT] [-f FORMAT]")
+    print(" SOURCE - required, file name")
+    print(" OUTPUT - optional, file name")
+    print(" FORMAT - optional, csv or txt")
+    print("more : tp.py -h, --help")
     sys.exit(0)
 
 # if script called with any argument requesting help, print help and exit
@@ -141,10 +145,10 @@ if sys.argv[1] in ['?', '/?', '-h', '--help']:
 # if any other arguments were provided, parse them
 args = parser.parse_args()
 
-# TODO: processor for HTTP URLs
 # check if user provided URL as a SOURCE
 if args.ifile.startswith('http'):
 
+    # TODO: processor for HTTP URLs
     # import requests
     # r = requests.get(args.ifile)
     # print(r.status_code)
@@ -155,13 +159,14 @@ if args.ifile.startswith('http'):
     print("URLs will be accepted and processed in the future versions.")
     sys.exit(0)
 else:
-    input_file = open(args.ifile, 'rb').read()
-    f_encoding = chardet.detect(input_file)['encoding']
+    input_file = open(args.ifile, 'r').read()
 
+# default output file extension is .csv. If user specified .txt, then use it
 extension = ".csv"
 if args.format == 'txt':
     extension = ".txt"
 
+# if output file format is ommited then construct new output file name
 if args.ofile is None:
     args.ofile = os.path.splitext(args.ifile)[0] + "_cleaned" + extension
     check_if_exists(args.ofile)
@@ -170,19 +175,18 @@ if args.ofile is None:
 # print args
 print('\n')
 print("Input file path     : {}".format(os.path.abspath(args.ifile)))
-print("Input file size     : {}".format(helper.sizeof_fmt(os.path.getsize(args.ifile))))
-print("Input file encoding : {}".format(f_encoding))
+print("Input file size     : {}".format(helpers.sizeof_fmt(os.path.getsize(args.ifile))))
 print("Output file path    : {}".format(os.path.abspath(args.ofile)))
 print("Output file format  : {}".format(args.format))
 print("Overwrite flag      : {}".format(output_file_overwrite))
 print('\n')
 
-# main part goes here - output list of words only
+# main part
 f = open(args.ifile, 'r')
 source_text = f.read()
 
-cleaned_text = helper.remove_punctuation_all(source_text)
-cleaned_text = helper.remove_numbers_all(cleaned_text)
+cleaned_text = helpers.remove_punctuation_all(source_text)
+cleaned_text = helpers.remove_numbers_all(cleaned_text)
 cleaned_text = cleaned_text.split()
 
 # if we only need unique words
