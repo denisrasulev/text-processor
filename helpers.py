@@ -29,3 +29,12 @@ def remove_numbers_all(text):
     text = text.translate(table)
 
     return text
+
+
+def count_char(text, char):
+    """Count how many times char is in text"""
+    count = 0
+    for c in text:
+        if c == char:
+            count += 1
+    return count

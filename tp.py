@@ -2,7 +2,7 @@
 #                                                                              #
 #           Script to clean text from all or user selected things              #
 #                                                                              #
-# - Called without any parameters it will show help                            #
+# - Without any parameters it will show usage instructions                     #
 # - Called with file input name only, it will show file stats, i.e. file size, #
 #  number of words, and clean from everything and save lower case words list   #
 #  in csv format.                                                              #
@@ -21,18 +21,19 @@ import os
 import sys
 import argparse
 import helpers
+from subprocess import check_output
 
 
-# class to define colors for messages, defines colors as escape sequences
+# give human names to text coloring escape sequences for output messages
 class Color:
-    """Class defines colors for messages"""
+    """Give human names to text coloring escape sequences"""
 
     def __init__(self):
-        self.OKGR = '\033[92m'
-        self.FAIL = '\033[93m'
-        self.WARN = '\033[33m'
-        self.ENDC = '\033[0m'
-        self.BOLD = '\033[1m'
+        self.OKGR = '\033[92m'  # ok (green)
+        self.FAIL = '\033[31m'  # failure (red)
+        self.WARN = '\033[33m'  # warning (yellow)
+        self.ENDC = '\033[0m'   # end coloring (return to normal color)
+        self.BOLD = '\033[1m'   # bold
 
 
 # create message colors instance
@@ -56,12 +57,12 @@ def check_if_exists(file_name):
 
         # if user wants to overwrite file, notify and set global variable to True
         if answer in ['o', 'O', '0']:
-            print("File will be overwritten!")
+            print(color.FAIL + "File will be overwritten!" + color.ENDC)
             output_file_overwrite = True
 
         # if user wants to append file, notify and set global variable to False
         elif answer in ['a', 'A', '']:
-            print("Output file will be appended.")
+            print(color.WARN + "Output file will be appended." + color.ENDC)
             output_file_overwrite = False
 
         # if user enters anything else, give help notice and exit
@@ -129,10 +130,10 @@ parser.add_argument('-f', '--format',
 
 # if script called without any arguments, print short usage note and exit
 if len(sys.argv) == 1:
-    print("usage: tp.py SOURCE [-o OUTPUT] [-f FORMAT]")
-    print(" SOURCE - required, file name")
-    print(" OUTPUT - optional, file name")
-    print(" FORMAT - optional, csv or txt")
+    print("usage: tp.py source [-o output] [-f format]")
+    print(" source   required, file name")
+    print(" output   optional, file name")
+    print(" format   optional, csv or txt")
     print("more : tp.py -h, --help")
     sys.exit(0)
 
@@ -172,14 +173,34 @@ if args.ofile is None:
     check_if_exists(args.ofile)
 
 
-# print args
-print('\n')
-print("Input file path     : {}".format(os.path.abspath(args.ifile)))
-print("Input file size     : {}".format(helpers.sizeof_fmt(os.path.getsize(args.ifile))))
-print("Output file path    : {}".format(os.path.abspath(args.ofile)))
-print("Output file format  : {}".format(args.format))
-print("Overwrite flag      : {}".format(output_file_overwrite))
-print('\n')
+def wc_line(filename):
+    return int(check_output(["wc", "-l", filename]).split()[0])
+
+
+def wc_word(filename):
+    return int(check_output(["wc", "-w", filename]).split()[0])
+
+
+# print args and basic info
+print("Input file")
+print("- path   : {}".format(os.path.abspath(args.ifile)))
+print("- size   : {}".format(helpers.sizeof_fmt(os.path.getsize(args.ifile))))
+print("- lines  : {}".format(wc_line(args.ifile)))
+print("- words  : {}".format(wc_word(args.ifile)))
+print("Output file")
+print("- path   : {}".format(os.path.abspath(args.ofile)))
+print("- format : {}".format(args.format))
+print("Overwrite flag")
+print("- status : {}".format(output_file_overwrite))
+
+# and confirm user action
+answer = input(color.WARN + "\nProceed? (y/n): " + color.ENDC)
+
+# if user wants to overwrite file, notify and set global variable to True
+if answer not in ['y', 'Y']:
+    print(color.FAIL + "Operation aborted." + color.ENDC)
+    sys.exit(0)
+
 
 # main part
 f = open(args.ifile, 'r')
@@ -223,3 +244,5 @@ f.write(out)
 f.close()
 
 # TODO: calculate size of all processed files - find file size and add it to saved number
+# TODO: all text to set and for each unique character count number of occurencies
+# TODO: count number of words and top 30? 50? 100? most frequent ones
