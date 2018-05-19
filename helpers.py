@@ -1,3 +1,4 @@
+import re
 import string
 
 
@@ -13,7 +14,7 @@ def sizeof_fmt(size, suffix='b'):
     return '{:0.2f} {}{}'.format(size, 'Y', suffix)
 
 
-def remove_punctuation_all(text):
+def remove_punctuation(text):
     """Remove all punctuation from anywhere in the text"""
 
     table = str.maketrans('', '', string.punctuation)
@@ -22,11 +23,19 @@ def remove_punctuation_all(text):
     return text
 
 
-def remove_numbers_all(text):
-    """Remove all punctuation from anywhere in the text"""
+def remove_digits(text):
+    """Remove all digits from anywhere in the text"""
 
     table = str.maketrans('', '', string.digits)
     text = text.translate(table)
+
+    return text
+
+
+def remove_chars(text):
+    """Remove all single chars from the text"""
+
+    text = re.sub(r'\b\w\b', '', text)
 
     return text
 

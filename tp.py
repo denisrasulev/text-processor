@@ -229,13 +229,14 @@ if answer not in ['y', 'Y']:
 f = open(args.ifile, 'r')
 source_text = f.read()
 
-cleaned_text = helpers.remove_punctuation_all(source_text)
-cleaned_text = helpers.remove_numbers_all(cleaned_text)
+# text processing functions
+cleaned_text = helpers.remove_punctuation(source_text)
+cleaned_text = helpers.remove_digits(cleaned_text)
+cleaned_text = helpers.remove_chars(cleaned_text)
 cleaned_text = cleaned_text.split()
-
-# if we only need unique words
-# if False:
-#     cleaned_text = set(cleaned_text)
+cleaned_text = [x.lower() for x in cleaned_text]
+cleaned_text = set(cleaned_text)
+cleaned_text = sorted(cleaned_text)
 
 # save text to file
 if output_file_overwrite:
