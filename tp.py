@@ -78,7 +78,8 @@ def check_if_exists(file_name):
     return file_name
 
 
-version = "Text Processor. Ver 0.1 (c) 2017-2018 Denis Rasulev. All Rights Reserved."
+version = "Text Processor. Ver 0.1 (c) 2017-2019 Denis Rasulev. All Rights " \
+          "Reserved."
 
 # description of what the script does
 description = """
@@ -257,7 +258,8 @@ def form_output(ext):
     }.get(ext, ', '.join(cleaned_text))
 
 
-# convert words list to user selected format - csv (default) or txt (one word per line)
+# convert words list to user selected format - csv (default) or txt (one word
+# per line)
 out = form_output(args.format)
 
 # write to file and close
