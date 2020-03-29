@@ -1,6 +1,6 @@
 ################################################################################
 #                                                                              #
-#           Script to clean text from all or user selected things              #
+#            Tool to clean text from all or user selected things               #
 #                                                                              #
 # - Without any parameters it will show usage instructions                     #
 # - Called with file input name only, it will show file stats, i.e. file size, #
@@ -16,72 +16,19 @@
 #                                                                              #
 ################################################################################
 
-# import required modules
+# Import required modules
 import os
 import sys
-import argparse
 import helpers
-from subprocess import check_output
+import argparse
 
+# Create message colors instance
+color = helpers.Color()
 
-# give human names to text coloring escape sequences for output messages
-class Color:
-    """Give human names to text coloring escape sequences"""
-
-    def __init__(self):
-        self.OKGR = '\033[92m'  # ok (green)
-        self.FAIL = '\033[31m'  # failure (red)
-        self.WARN = '\033[33m'  # warning (yellow)
-        self.ENDC = '\033[0m'   # end coloring (return to normal color)
-        self.BOLD = '\033[1m'   # bold
-
-
-# create message colors instance
-color = Color()
-
-
-# function to check if file exists
-def check_if_exists(file_name):
-    """Check if output file name already exists and then propose to append to it
-    or overwrite it."""
-    # global variable to know if we shall append or overwrite output file
-    global output_file_overwrite
-
-    # check if file already exists and if yes, ask what user wants to do with it
-    # - append or overwrite
-    if os.path.exists(file_name):
-        decision = input(color.WARN + "\nWarning: " + color.ENDC +
-                         "File '" + file_name + "' already exists.\n"
-                         "(" + color.BOLD + "A" + color.ENDC + ")ppend (default)"
-                         " to it or (" + color.BOLD + "O" + color.ENDC + ")verwrite it? ")
-
-        # if user wants to overwrite file, notify and set global variable to True
-        if decision in ['o', 'O', '0']:
-            print(color.FAIL + "File will be overwritten!" + color.ENDC)
-            output_file_overwrite = True
-
-        # if user wants to append file, notify and set global variable to False
-        elif decision in ['a', 'A', '']:
-            print(color.WARN + "Output file will be appended." + color.ENDC)
-            output_file_overwrite = False
-
-        # if user enters anything else, give help notice and exit
-        else:
-            print("Incorrect input, script stopped. Run again.")
-            sys.exit(0)
-
-    # if file does not exist then set global variable to True since new file will be created
-    else:
-        output_file_overwrite = True
-
-    # return file name for further processing
-    return file_name
-
-
-version = "Text Processor. Ver 0.1 (c) 2017-2019 Denis Rasulev. All Rights " \
+version = "Text Processor. Ver 0.1 (c) 2017-2020 Denis Rasulev. All Rights " \
           "Reserved."
 
-# description of what the script does
+# Description of what the tool does
 description = """
 Script cleans SOURCE from all (default) or only user selected elements.
 
@@ -126,7 +73,7 @@ Script will save output file in specified format.
 
 epilog = version
 
-# create arguments parser
+# Create arguments parser
 parser = argparse.ArgumentParser(
     prog='tp.py',
     add_help=False,
@@ -135,19 +82,19 @@ parser = argparse.ArgumentParser(
     description=description,
     epilog=epilog)
 
-# add arguments
+# Add command line arguments
 parser.add_argument('ifile',
                     metavar='SOURCE',
                     help="source to be processed")
 parser.add_argument('-o', '--ofile',
-                    metavar='OUTPUT', type=check_if_exists,
+                    metavar='OUTPUT',
                     help="specifies output file name")
 parser.add_argument('-f', '--format',
                     metavar='FORMAT',
                     default='csv',
                     help="specifies output file format: csv or txt")
 
-# if script called without any arguments, print short usage note and exit
+# If script is called without any arguments, print short usage note and exit
 if len(sys.argv) == 1:
     print(version)
     print("")
@@ -159,7 +106,7 @@ if len(sys.argv) == 1:
     print("help:     tp.py -h, --help")
     sys.exit(0)
 
-# if script called with any argument requesting help, print help and exit
+# If script called with any argument requesting help, print help and exit
 if sys.argv[1] in ['?', '/?', '-h', '--help']:
     parser.print_help()
     sys.exit(0)
@@ -168,69 +115,100 @@ if sys.argv[1] in ['-v', '--version']:
     print(version)
     sys.exit(0)
 
-# if any other arguments were provided, parse them
+# If any other arguments were provided, parse them
 args = parser.parse_args()
 
-# check if user provided URL as a SOURCE
-if args.ifile.startswith('http') or args.ifile.startswith('https'):
-
-    # TODO: processor for HTTP URLs
-    # import requests
-    # r = requests.get(args.ifile)
-    # print(r.status_code)
-    # print(r.headers['content-type'])
-    # print(r.encoding)
-    # print(r.text)
-
-    print("URLs will be accepted and processed in future versions.")
-    sys.exit(0)
-else:
-    input_file = open(args.ifile, 'r').read()
-
-# default output file extension is .csv. If user specified .txt, then use it
+# Default output file extension is .csv. If user specified .txt, then use it
 extension = ".csv"
 if args.format == 'txt':
     extension = ".txt"
 
-# if output file format is ommited then construct new output file name
+# By default we say that output file exists, so we append to it rather than
+# overwrite, which is safer option
+file_exists = True
+
+# If user provided URL as a SOURCE
+if args.ifile.startswith('http') or args.ifile.startswith('https'):
+
+    # TODO: http checkings
+    # check status code
+    # content type shall be text/html, otherwise, return message
+    # check encoding - can we convert?
+    # finally, input info into file
+    import requests
+
+    # Connect to the requested URL
+    try:
+        # Wait for the response from server 5 sec and no redirects
+        r = requests.get(args.ifile, timeout=5, allow_redirects=False)
+
+    # If r.status_code != requests.codes.ok
+    except requests.ConnectionError or requests.Timeout as e:
+        print("This error happened while processing the requested URL:")
+        print(str(e))
+        sys.exit(1)
+
+    # We shall process only these types of contents
+    allowed_content_types = ['text/plain',
+                             'text/html',
+                             'text/xml',
+                             'text/csv',
+                             'text/css',
+                             'application/xml',
+                             'application/json']
+
+    if r.headers['content-type'].split(';')[0] in allowed_content_types:
+        # Override encoding by real educated guess as provided by chardet
+        r.encoding = r.apparent_encoding
+
+        # Get content
+        source_text = r.text
+
+        # Set args and parameters when URL
+        args.ofile = 'url_content_cleaned' + extension
+        file_exists = helpers.check_if_file_exists(args.ofile)
+        size = 0
+        lines = 0
+        words = 0
+    else:
+        print("Requested URL has different content than text, xml or json)")
+        print("Content type:", r.headers['content-type'])
+        sys.exit(1)
+
+else:
+    f = open(args.ifile, 'r')
+    source_text = open(args.ifile, 'r').read()
+
+    # Set args and parameters when file
+    size = helpers.sizeof_fmt(os.path.getsize(args.ifile))
+    lines = helpers.wc_line(args.ifile)
+    words = helpers.wc_word(args.ifile)
+
+# If output file format is ommited then construct new output file name
 if args.ofile is None:
     args.ofile = os.path.splitext(args.ifile)[0] + "_cleaned" + extension
-    check_if_exists(args.ofile)
-
-
-def wc_line(filename):
-    return int(check_output(["wc", "-l", filename]).split()[0])
-
-
-def wc_word(filename):
-    return int(check_output(["wc", "-w", filename]).split()[0])
-
+    file_exists = helpers.check_if_file_exists(args.ofile)
 
 # print args and basic info
-print("Input file")
-print("- path   : {}".format(os.path.abspath(args.ifile)))
-print("- size   : {}".format(helpers.sizeof_fmt(os.path.getsize(args.ifile))))
-print("- lines  : {}".format(wc_line(args.ifile)))
-print("- words  : {}".format(wc_word(args.ifile)))
-print("Output file")
-print("- path   : {}".format(os.path.abspath(args.ofile)))
+print("Input")
+print("- file   : {}".format(args.ifile))
+print("- size   : {}".format(size))
+print("- lines  : {}".format(lines))
+print("- words  : {}".format(words))
+print("Output")
+print("- file   : {}".format(args.ofile))
 print("- format : {}".format(args.format))
-print("Overwrite")
-print("- status : {}".format(output_file_overwrite))
+print("- status : {}".format('append' if file_exists else 'overwrite'))
 
 # and confirm user action
-answer = input(color.WARN + "\nProceed? (y/n): " + color.ENDC)
+answer = input(color.WARN + "\nProceed? (y/n): " + color.DFLT)
 
-# if user wants to overwrite file, notify and set global variable to True
+# if user wants to file_exists file, notify and set global variable to True
 if answer not in ['y', 'Y']:
-    print(color.FAIL + "Operation aborted." + color.ENDC)
+    print(color.FAIL + "Operation aborted." + color.DFLT)
     sys.exit(0)
 
-# main part
-f = open(args.ifile, 'r')
-source_text = f.read()
-
-# text processing functions
+# Text processing
 cleaned_text = helpers.remove_punctuation(source_text)
 cleaned_text = helpers.remove_digits(cleaned_text)
 cleaned_text = helpers.remove_chars(cleaned_text)
@@ -240,10 +218,10 @@ cleaned_text = set(cleaned_text)
 cleaned_text = sorted(cleaned_text)
 
 # save text to file
-if output_file_overwrite:
-    write_mode = 'w'  # append if already exists
+if file_exists:
+    write_mode = 'a'  # append if already exists
 else:
-    write_mode = 'a'  # make a new file if not
+    write_mode = 'w'  # make a new file if not
 
 # open file in required mode - append or oveerwrite
 f = open(args.ofile, write_mode)
@@ -266,8 +244,8 @@ out = form_output(args.format)
 f.write(out)
 f.close()
 
-# TODO: calculate size of all processed files - find file size and add it to saved number
-# TODO: all text to set and for each unique character count number of occurencies
+# TODO: calculate size of all processed files and add it to total number
+# TODO: all text to set and for each unique word count number of occurencies
 # TODO: count number of words and top 30? 50? 100? most frequent ones
 
 # for char in "abcdefghijklmnopqrstuvwxyz":

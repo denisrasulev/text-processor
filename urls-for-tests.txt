@@ -1,0 +1,2 @@
+http://www.example.com
+https://fcc-weather-api.glitch.me/api/current?lat=35&lon=139
