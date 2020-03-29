@@ -1,7 +1,8 @@
+# Additions and supporting functions
+
+# Import required modules
 import os
-import re
 import sys
-import string
 from subprocess import check_output
 
 
@@ -54,6 +55,15 @@ def check_if_file_exists(file_name):
         return False
 
 
+def form_output(extension, text):
+    """Convert processed word list to user selected file format - csv (default)
+    or txt (one word per line)."""
+    return {
+        'csv': ', '.join(text),
+        'txt': '\n'.join(text)
+    }.get(extension, ', '.join(text))
+
+
 # Function to get human readable size of file
 # https://stackoverflow.com/a/1094933/4440387
 def sizeof_fmt(size, suffix='bytes'):
@@ -66,34 +76,6 @@ def sizeof_fmt(size, suffix='bytes'):
     return '{:0.2f} {}{}'.format(size, 'Y', suffix)
 
 
-def remove_punctuation(text):
-    """Remove all punctuation from anywhere in the text"""
-
-    # table = str.maketrans(' ', ' ', string.punctuation)
-    # text = text.translate(table)
-    text = re.sub(r'[^\w\s]', ' ', text)
-
-    return text
-
-
-def remove_digits(text):
-    """Remove all digits from anywhere in the text"""
-
-    # table = str.maketrans('', '', string.digits)
-    # text = text.translate(table)
-    text = re.sub(r'\d+', ' ', text)
-
-    return text
-
-
-def remove_chars(text):
-    """Remove all single chars from the text"""
-
-    text = re.sub(r'\b\w\b', '', text)
-
-    return text
-
-
 def count_char(text, char):
     """Count how many times char is in text"""
     count = 0
@@ -103,9 +85,15 @@ def count_char(text, char):
     return count
 
 
-def wc_line(filename):
+def count_lines(filename):
     return int(check_output(["wc", "-l", filename]).split()[0])
 
 
-def wc_word(filename):
+def count_words(filename):
     return int(check_output(["wc", "-w", filename]).split()[0])
+
+
+# TODO: counting functions?
+# for char in "abcdefghijklmnopqrstuvwxyz":
+#   perc = 100 * count_char(text, char) / len(text)
+#   print("{0} - {1}%".format(char, round(perc, 2)))

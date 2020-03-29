@@ -19,11 +19,13 @@
 # Import required modules
 import os
 import sys
-import helpers
+import requests
 import argparse
+import additions as addons
+import processors as procs
 
 # Create message colors instance
-color = helpers.Color()
+color = addons.Color()
 
 version = "Text Processor. Ver 0.1 (c) 2017-2020 Denis Rasulev. All Rights " \
           "Reserved."
@@ -130,16 +132,9 @@ file_exists = True
 # If user provided URL as a SOURCE
 if args.ifile.startswith('http') or args.ifile.startswith('https'):
 
-    # TODO: http checkings
-    # check status code
-    # content type shall be text/html, otherwise, return message
-    # check encoding - can we convert?
-    # finally, input info into file
-    import requests
-
     # Connect to the requested URL
     try:
-        # Wait for the response from server 5 sec and no redirects
+        # Wait for the response from server 5 sec and do not allow redirects
         r = requests.get(args.ifile, timeout=5, allow_redirects=False)
 
     # If r.status_code != requests.codes.ok
@@ -164,32 +159,36 @@ if args.ifile.startswith('http') or args.ifile.startswith('https'):
         # Get content
         source_text = r.text
 
-        # Set args and parameters when URL
+        # Set args and parameters if we process URL
+        # TODO: get domain to save as output file name
         args.ofile = 'url_content_cleaned' + extension
-        file_exists = helpers.check_if_file_exists(args.ofile)
+        file_exists = addons.check_if_file_exists(args.ofile)
         size = 0
         lines = 0
         words = 0
+
+    # If URL contains anything else, except what we can process, notify and exit
     else:
         print("Requested URL has different content than text, xml or json)")
         print("Content type:", r.headers['content-type'])
         sys.exit(1)
 
+# If input is not URL, then we suppose it's file
 else:
     f = open(args.ifile, 'r')
     source_text = open(args.ifile, 'r').read()
 
-    # Set args and parameters when file
-    size = helpers.sizeof_fmt(os.path.getsize(args.ifile))
-    lines = helpers.wc_line(args.ifile)
-    words = helpers.wc_word(args.ifile)
+    # Set args and parameters if we process file
+    size = addons.sizeof_fmt(os.path.getsize(args.ifile))
+    lines = addons.count_lines(args.ifile)
+    words = addons.count_words(args.ifile)
 
 # If output file format is ommited then construct new output file name
 if args.ofile is None:
     args.ofile = os.path.splitext(args.ifile)[0] + "_cleaned" + extension
-    file_exists = helpers.check_if_file_exists(args.ofile)
+    file_exists = addons.check_if_file_exists(args.ofile)
 
-# print args and basic info
+# Print received arguments and basic info
 print("Input")
 print("- file   : {}".format(args.ifile))
 print("- size   : {}".format(size))
@@ -200,54 +199,39 @@ print("- file   : {}".format(args.ofile))
 print("- format : {}".format(args.format))
 print("- status : {}".format('append' if file_exists else 'overwrite'))
 
-# and confirm user action
+# Confirm if user wants to continue
 answer = input(color.WARN + "\nProceed? (y/n): " + color.DFLT)
 
-# if user wants to file_exists file, notify and set global variable to True
+# If user cancels, notify and abort
 if answer not in ['y', 'Y']:
     print(color.FAIL + "Operation aborted." + color.DFLT)
     sys.exit(0)
 
 # Text processing
-cleaned_text = helpers.remove_punctuation(source_text)
-cleaned_text = helpers.remove_digits(cleaned_text)
-cleaned_text = helpers.remove_chars(cleaned_text)
-cleaned_text = cleaned_text.split()
+cleaned_text = procs.remove_punctuation(source_text)
+cleaned_text = procs.remove_extra_spaces(cleaned_text)
+cleaned_text = procs.remove_single_chars(cleaned_text)
+cleaned_text = procs.remove_digits(cleaned_text)
+cleaned_text = cleaned_text.split(' ')
 cleaned_text = [x.lower() for x in cleaned_text]
 cleaned_text = set(cleaned_text)
 cleaned_text = sorted(cleaned_text)
 
-# save text to file
-if file_exists:
-    write_mode = 'a'  # append if already exists
-else:
-    write_mode = 'w'  # make a new file if not
+# Select output file write mode - append or overwrite
+write_mode = 'a' if file_exists else 'w'
 
-# open file in required mode - append or oveerwrite
+# Open file in selected mode
 f = open(args.ofile, write_mode)
 
+# Convert words list to the default or user selected format
+# csv (default) or txt (with one word per line)
+out = addons.form_output(args.format, cleaned_text)
 
-def form_output(ext):
-    """Convert processed word list to user selected file format - csv (default)
-    or txt (one word per line)."""
-    return {
-        'csv': ', '.join(cleaned_text),
-        'txt': '\n'.join(cleaned_text)
-    }.get(ext, ', '.join(cleaned_text))
-
-
-# convert words list to user selected format - csv (default) or txt (one word
-# per line)
-out = form_output(args.format)
-
-# write to file and close
+# Write to file and close it
 f.write(out)
 f.close()
 
+# TODO: add try - except to all file opening commands
 # TODO: calculate size of all processed files and add it to total number
 # TODO: all text to set and for each unique word count number of occurencies
-# TODO: count number of words and top 30? 50? 100? most frequent ones
-
-# for char in "abcdefghijklmnopqrstuvwxyz":
-#   perc = 100 * count_char(text, char) / len(text)
-#   print("{0} - {1}%".format(char, round(perc, 2)))
+# TODO: count number of words and show top 30? 50? 100? most frequent ones
