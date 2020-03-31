@@ -208,7 +208,8 @@ if answer not in ['y', 'Y']:
     sys.exit(0)
 
 # Text processing
-cleaned_text = procs.remove_punctuation(source_text)
+cleaned_text = procs.remove_html_tags(source_text)
+cleaned_text = procs.remove_punctuation(cleaned_text)
 cleaned_text = procs.remove_extra_spaces(cleaned_text)
 cleaned_text = procs.remove_single_chars(cleaned_text)
 cleaned_text = procs.remove_digits(cleaned_text)
@@ -235,3 +236,4 @@ f.close()
 # TODO: calculate size of all processed files and add it to total number
 # TODO: all text to set and for each unique word count number of occurencies
 # TODO: count number of words and show top 30? 50? 100? most frequent ones
+# TODO: Entities extraction options - names, places, e-mails, etc?

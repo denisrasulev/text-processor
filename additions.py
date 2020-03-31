@@ -21,13 +21,12 @@ class Color:
 clr = Color()
 
 
-# Function to check if file exists
 def check_if_file_exists(file_name):
     """Check if output file name already exists and then propose to append to it
-    or file_exists it."""
+    or overwrite it."""
 
-    # Check if file already exists and if yes, ask what user wants to do with it
-    # - append or file_exists
+    # Check if file already exists and if yes, ask what to do with it -
+    # append or overwrite
     if os.path.exists(file_name):
         decision = input(
             clr.WARN + "\nWarning: " + clr.DFLT +
@@ -35,7 +34,7 @@ def check_if_file_exists(file_name):
             "A" + clr.DFLT + ")ppend (" "default)"" to it or (" + clr.BOLD +
             "O" + clr.DFLT + ")verwrite it? ")
 
-        # If user wants to file_exists file, notify and return True
+        # If user wants to overwrite file, notify and return True
         if decision in ['a', 'A', '']:
             print(clr.WARN + "Output file will be appended." + clr.DFLT)
             return True
@@ -47,10 +46,10 @@ def check_if_file_exists(file_name):
 
         # If user enters anything else, give notice and exit
         else:
-            print("Incorrect input, script stopped. Run again.")
+            print("Incorrect input, try again.")
             sys.exit(0)
 
-    # If file does not exist return False
+    # If file does not exist, return False
     else:
         return False
 
