@@ -26,12 +26,12 @@ def index():
 
 @app.route('/about')
 def about():
-    return render_template('about.html')
+    return render_template('about.html', title='About')
 
 
 @app.route('/price')
 def price():
-    return render_template('price.html')
+    return render_template('price.html', title='Prices')
 
 
 @app.route('/upload', methods=['GET', 'POST'])
