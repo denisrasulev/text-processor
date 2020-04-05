@@ -1,21 +1,3 @@
-################################################################################
-#                                                                              #
-#            Tool to clean text from all or user selected things               #
-#                                                                              #
-# - Without any parameters it will show usage instructions                     #
-# - Called with file input name only, it will show file stats, i.e. file size, #
-#  number of words, then clean from everything and save lower case words list  #
-#  in csv format.                                                              #
-# - Rest is according to the parameters                                        #
-#                                                                              #
-# 1. Open file                                                                 #
-# 2. Get / show / save file stats                                              #
-# 3. User selected options for cleaning: either by args / options or via GUI   #
-# 4. Process text                                                              #
-# 5. Save output in user selected format: plain text, csv, ?                   #
-#                                                                              #
-################################################################################
-
 # Import required modules
 import os
 import sys
@@ -36,13 +18,13 @@ Script cleans SOURCE from all (default) or only user selected elements.
 
 USAGE:
 
-> python tp.py
+> python3 tp.py
 Shows short usage info.
 
-> python tp.py -h, --help
+> python3 tp.py -h, --help
 Shows this help message.
 
-> python tp.py SOURCE
+> python3 tp.py SOURCE
 Script attempts to read SOURCE for further processing. 
 
 Those elements are removed from the SOURCE by default:
@@ -175,8 +157,14 @@ if args.ifile.startswith('http') or args.ifile.startswith('https'):
 
 # If input is not URL, then we suppose it's file
 else:
-    f = open(args.ifile, 'r')
-    source_text = open(args.ifile, 'r').read()
+    try:
+        f = open(args.ifile, 'r')
+    except OSError as e:
+        print("Cannot open", args.ifile)
+        print("Error:", e)
+        sys.exit(1)
+
+    source_text = f.read()
 
     # Set args and parameters if we process file
     size = addons.sizeof_fmt(os.path.getsize(args.ifile))
@@ -222,18 +210,22 @@ cleaned_text = sorted(cleaned_text)
 write_mode = 'a' if file_exists else 'w'
 
 # Open file in selected mode
-f = open(args.ofile, write_mode)
+try:
+    f = open(args.ofile, write_mode)
+except OSError as e:
+    print("Cannot open", args.ofile)
+    print("Error:", e)
+    sys.exit(1)
+else:
+    # Convert words list to the default or user selected format
+    # csv (default) or txt (with one word per line)
+    out = addons.form_output(args.format, cleaned_text)
 
-# Convert words list to the default or user selected format
-# csv (default) or txt (with one word per line)
-out = addons.form_output(args.format, cleaned_text)
+    # Write to file and close it
+    f.write(out)
+    f.close()
 
-# Write to file and close it
-f.write(out)
-f.close()
-
-# TODO: add try - except to all file opening commands
-# TODO: calculate size of all processed files and add it to total number
+# TODO: calculate size of all processed files and add it to the total number
 # TODO: all text to set and for each unique word count number of occurencies
 # TODO: count number of words and show top 30? 50? 100? most frequent ones
 # TODO: Entities extraction options - names, places, e-mails, etc?
