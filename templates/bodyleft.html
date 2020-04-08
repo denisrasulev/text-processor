@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+<!-- Left Part -->
+{% block bodyleft %}
+
+  <!-- Text input field -->
+  <form action="" method="POST">
+    <div class="form-group">
+      <label for="FormControlTextareaInput">Paste your text here:</label>
+      <textarea class="form-control" id="FormControlTextareaInput" rows="5"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+
+  <!-- Sample of processed text -->
+  <form action="" method="GET">
+    <div class="form-group">
+      <label for="FormControlTextareaInput">Sample of processed text:</label>
+      <textarea class="form-control" id="FormControlTextareaInput" rows="5"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Download</button>
+  </form>
+
+{% endblock %}
