@@ -7,23 +7,26 @@
   <form action="/" method="POST">
     <div class="form-group">
       <label for="SourceTextArea">Enter your text here:</label>
-      <textarea class="form-control" id="SourceTextArea" name="text" rows="5"
+      <textarea class="form-control" id="SourceTextArea" name="text" rows="10"
                 placeholder="Paste your text here..." >
         {{ source }}
       </textarea>
-      <button type="submit" class="btn btn-primary float-right">Submit</button>
     </div>
+    <button type="submit" class="btn btn-primary float-right">Submit</button>
   </form>
+
+  <br>
+  <br>
 
   <!-- Sample of processed text -->
   <form action="/" method="GET">
     <div class="form-group">
       <label for="ResultTextArea">Sample of processed text:</label>
-      <textarea class="form-control" id="ResultTextArea" rows="5">
+      <textarea class="form-control" id="ResultTextArea" rows="10">
         {{ result }}
       </textarea>
-      <button type="submit" class="btn btn-primary float-right" >Download</button>
     </div>
+    <button type="submit" class="btn btn-primary float-right" >Download</button>
   </form>
 
 {% endblock %}

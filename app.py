@@ -20,12 +20,12 @@ def allowed_file(filename):
 @app.route('/',     methods=['GET', 'POST'])
 @app.route('/home', methods=['GET', 'POST'])
 def index():
-    source = ""
-    result = ""
     if request.method == "POST":
         source = request.form['text']
         result = source.upper()
-    return render_template('bodyleft.html', source=source, result=result)
+        return render_template('bodyleft.html', source=source, result=result)
+    else:
+        return render_template('bodyleft.html')
 
 
 @app.route('/about')
@@ -51,6 +51,11 @@ def login():
 @app.route('/register')
 def register():
     return render_template('about.html', title='Register')
+
+
+@app.route('/contact')
+def contact():
+    return render_template('contact.html', title='Contact')
 
 
 if __name__ == "__main__":

@@ -19,7 +19,7 @@
 
   <!-- Title for tab in browser -->
   {% if title %}
-    <title>TP - {{ title }} </title>
+    <title>{{ title }} </title>
   {% else %}
     <title>Text Processor</title>
   {% endif %}
@@ -33,19 +33,10 @@
 
 <div class="container">
 
-{#  <!-- Header section above main content -->#}
-{#  <div class="row row-lg-4">#}
-{#    <div class="col">#}
-{#      {% block head %}#}
-{#        {% include 'header.html' %}#}
-{#      {% endblock %}#}
-{#    </div>#}
-{#  </div>#}
-
   <!-- Pop-up messages above main content -->
   {% include 'messages.html' %}
 
-  <!-- Main Content -->
+  <!-- Main Content on every page -->
   {% block body %}
     <div class="row">
       <div class="col-lg-6">
@@ -59,6 +50,7 @@
       </div>
     </div>
   {% endblock %}
+
 </div>
 
 <!-- Bottom bar on every page -->
