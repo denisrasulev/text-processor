@@ -20,8 +20,12 @@ def allowed_file(filename):
 @app.route('/',     methods=['GET', 'POST'])
 @app.route('/home', methods=['GET', 'POST'])
 def index():
-    text = TextForm()
-    return render_template('bodyleft.html', form=text)
+    source = ""
+    result = ""
+    if request.method == "POST":
+        source = request.form['text']
+        result = source.upper()
+    return render_template('bodyleft.html', source=source, result=result)
 
 
 @app.route('/about')
@@ -42,6 +46,11 @@ def login():
             form.username.data, form.remember_me.data))
         return redirect(url_for('index'))
     return render_template('login.html', title='Sign In', form=form)
+
+
+@app.route('/register')
+def register():
+    return render_template('about.html', title='Register')
 
 
 if __name__ == "__main__":

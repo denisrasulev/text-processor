@@ -10,13 +10,13 @@
     <div class="collapse navbar-collapse" id="navbarToggle">
       <div class="navbar-nav mr-auto">
         <a class="nav-item nav-link" href="/">Main</a>
-        <a class="nav-item nav-link" href="/about">About</a>
-        <a class="nav-item nav-link" href="/price">Price</a>
+        <a class="nav-item nav-link" href="{{ url_for('about') }}">About</a>
+        <a class="nav-item nav-link" href="{{ url_for('price') }}">Price</a>
       </div>
       <!-- Navbar Right Side -->
       <div class="navbar-nav">
-        <a class="nav-item nav-link" href="/login">Login</a>
-        <a class="nav-item nav-link" href="/register">Register</a>
+        <a class="nav-item nav-link" href="{{ url_for('login') }}">Login</a>
+        <a class="nav-item nav-link" href="{{ url_for('register') }}">Register</a>
       </div>
     </div>
   </div>

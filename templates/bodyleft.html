@@ -4,21 +4,26 @@
 {% block bodyleft %}
 
   <!-- Text input field -->
-  <form action="" method="POST">
+  <form action="/" method="POST">
     <div class="form-group">
-      <label for="FormControlTextareaInput">Paste your text here:</label>
-      <textarea class="form-control" id="FormControlTextareaInput" rows="5"></textarea>
+      <label for="SourceTextArea">Enter your text here:</label>
+      <textarea class="form-control" id="SourceTextArea" name="text" rows="5"
+                placeholder="Paste your text here..." >
+        {{ source }}
+      </textarea>
+      <button type="submit" class="btn btn-primary float-right">Submit</button>
     </div>
-    <button type="submit" class="btn btn-primary">Submit</button>
   </form>
 
   <!-- Sample of processed text -->
-  <form action="" method="GET">
+  <form action="/" method="GET">
     <div class="form-group">
-      <label for="FormControlTextareaInput">Sample of processed text:</label>
-      <textarea class="form-control" id="FormControlTextareaInput" rows="5"></textarea>
+      <label for="ResultTextArea">Sample of processed text:</label>
+      <textarea class="form-control" id="ResultTextArea" rows="5">
+        {{ result }}
+      </textarea>
+      <button type="submit" class="btn btn-primary float-right" >Download</button>
     </div>
-    <button type="submit" class="btn btn-primary">Download</button>
   </form>
 
 {% endblock %}

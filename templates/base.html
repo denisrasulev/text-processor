@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<!-- Head section for every page -->
 <head>
   <!-- Required meta tags -->
   <meta charset="utf-8">
@@ -16,7 +17,7 @@
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='custom.css') }}">
   <link rel="icon" type="image/ico" href="{{ url_for('static', filename='favicon.ico') }}">
 
-  <!-- Title -->
+  <!-- Title for tab in browser -->
   {% if title %}
     <title>TP - {{ title }} </title>
   {% else %}
@@ -24,9 +25,15 @@
   {% endif %}
 </head>
 
+<!-- Body section for every page -->
 <body>
+
+<!-- Top bar on every page -->
 {% include 'navbartop.html' %}
+
 <div class="container">
+
+{#  <!-- Header section above main content -->#}
 {#  <div class="row row-lg-4">#}
 {#    <div class="col">#}
 {#      {% block head %}#}
@@ -34,7 +41,10 @@
 {#      {% endblock %}#}
 {#    </div>#}
 {#  </div>#}
+
+  <!-- Pop-up messages above main content -->
   {% include 'messages.html' %}
+
   <!-- Main Content -->
   {% block body %}
     <div class="row">
@@ -50,9 +60,11 @@
     </div>
   {% endblock %}
 </div>
+
+<!-- Bottom bar on every page -->
 {% include 'navbarbtm.html' %}
 
-<!-- jQuery, Popper.js, Bootstrap JS -->
+<!-- jQuery, Popper.js, Bootstrap JS includes -->
 <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
         integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
         crossorigin="anonymous"></script>
