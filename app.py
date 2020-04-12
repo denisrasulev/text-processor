@@ -1,8 +1,9 @@
 import os
-from flask import Flask, flash, request, redirect, url_for, render_template
+
+from flask import Flask, flash, redirect, render_template, request, url_for
+
 from config import Config
-from forms import TextForm, LoginForm
-from werkzeug.utils import secure_filename
+from forms import ContactForm, LoginForm
 
 APP_ROUTE = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = '/texts'
@@ -17,10 +18,10 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@app.route('/',     methods=['GET', 'POST'])
-@app.route('/home', methods=['GET', 'POST'])
+@app.route('/', methods=['get', 'post'])
+@app.route('/home', methods=['get', 'post'])
 def index():
-    if request.method == "POST":
+    if request.method == "post":
         source = request.form['text']
         result = source.upper()
         return render_template('bodyleft.html', source=source, result=result)
@@ -38,7 +39,7 @@ def price():
     return render_template('price.html', title='Prices')
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['get', 'post'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
@@ -53,9 +54,24 @@ def register():
     return render_template('about.html', title='Register')
 
 
-@app.route('/contact')
+@app.route('/contact', methods=['get', 'post'])
 def contact():
-    return render_template('contact.html', title='Contact')
+    form = ContactForm()
+    if form.validate_on_submit():
+        name = form.name.data
+        mail = form.mail.data
+        gdpr = form.gdpr.data
+        mark = form.mark.data
+        flash('Contact saved for user {}, with mail {}; GDPR={}, Marketing={}. Thank you '
+              'for registering!'.format(name, mail, gdpr, mark))
+        # TODO: save data to database
+        return redirect(url_for('index'))
+    return render_template('contact.html', form=form, title='Contact')
+
+
+@app.errorhandler(404)
+def not_found(e):
+    return render_template("404.html", title='Page Not Found')
 
 
 if __name__ == "__main__":
