@@ -3,7 +3,7 @@ import os
 from flask import Flask, flash, redirect, render_template, request, url_for
 
 from config import Config
-from forms import ContactForm, LoginForm
+from forms import TextForm, LoginForm, ContactForm
 
 APP_ROUTE = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = '/texts'
