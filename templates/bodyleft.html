@@ -1,32 +1,24 @@
 {% extends "base.html" %}
 
+{% from "formshelper.html" import render_field %}
+
 <!-- Left Part -->
 {% block bodyleft %}
 
-  <!-- Text input field -->
-  <form action="/" method="POST">
-    <div class="form-group">
-      <label for="SourceTextArea">Enter your text here:</label>
-      <textarea class="form-control" id="SourceTextArea" name="text" rows="10"
-                placeholder="Paste your text here..." >
-        {{ source }}
-      </textarea>
-    </div>
-    <button type="submit" class="btn btn-primary float-right">Submit</button>
-  </form>
-
-  <br>
-  <br>
-
-  <!-- Sample of processed text -->
-  <form action="/" method="GET">
-    <div class="form-group">
-      <label for="ResultTextArea">Sample of processed text:</label>
-      <textarea class="form-control" id="ResultTextArea" rows="10">
-        {{ result }}
-      </textarea>
-    </div>
-    <button type="submit" class="btn btn-primary float-right" >Download</button>
-  </form>
+  <!-- Text fields -->
+  <div class="container">
+    <form action="/" method="post">
+      {{ form.csrf_token }}
+      {{ form.hidden_tag() }}
+      <dl>
+        <dt>Enter or paste URL or text (max 1000 symbols):</dt>
+        <dd>{{ form.input }}</dd>
+        <dd>{{ form.subm() }}</dd>
+        <dt>Sample of the processed text:</dt>
+        <dd>{{ form.outp }}</dd>
+        <dd>{{ form.down() }}</dd>
+      </dl>
+    </form>
+  </div>
 
 {% endblock %}

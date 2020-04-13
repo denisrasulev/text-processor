@@ -5,6 +5,8 @@ import os
 import sys
 from subprocess import check_output
 
+from config import Config
+
 
 # Give human names to text coloring escape sequences for output messages
 class Color:
@@ -19,6 +21,11 @@ class Color:
 
 
 clr = Color()
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in Config.ALLOWED_EXTENSIONS
 
 
 def check_if_file_exists(file_name):
@@ -90,7 +97,6 @@ def count_lines(filename):
 
 def count_words(filename):
     return int(check_output(["wc", "-w", filename]).split()[0])
-
 
 # TODO: counting functions?
 # for char in "abcdefghijklmnopqrstuvwxyz":

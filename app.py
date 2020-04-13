@@ -1,32 +1,23 @@
-import os
-
-from flask import Flask, flash, redirect, render_template, request, url_for
+from flask import Flask, flash, redirect, render_template, url_for
 
 from config import Config
 from forms import TextForm, LoginForm, ContactForm
 
-APP_ROUTE = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_FOLDER = '/texts'
-ALLOWED_EXTENSIONS = {'txt'}
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
 
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
 @app.route('/', methods=['get', 'post'])
 @app.route('/home', methods=['get', 'post'])
 def index():
-    if request.method == "post":
-        source = request.form['text']
-        result = source.upper()
-        return render_template('bodyleft.html', source=source, result=result)
+    form = TextForm()
+    if form.validate_on_submit():
+        source = form.input.data
+        form.outp.data = source.upper()
+        return render_template('bodyleft.html', form=form)
     else:
-        return render_template('bodyleft.html')
+        return render_template('bodyleft.html', form=form)
 
 
 @app.route('/about')
@@ -44,7 +35,7 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         flash('Login requested for user {}, remember_me={}'.format(
-            form.username.data, form.remember_me.data))
+            form.username.data, form.remember.data))
         return redirect(url_for('index'))
     return render_template('login.html', title='Sign In', form=form)
 
