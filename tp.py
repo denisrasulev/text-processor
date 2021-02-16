@@ -122,7 +122,7 @@ if args.ifile.startswith('http') or args.ifile.startswith('https'):
         r = requests.get(args.ifile, timeout=5, allow_redirects=False)
 
     # If r.status_code != requests.codes.ok
-    except requests.ConnectionError or requests.Timeout as e:
+    except (requests.ConnectionError, requests.Timeout) as e:
         print("This error happened while processing the requested URL:")
         print(str(e))
         sys.exit(1)
