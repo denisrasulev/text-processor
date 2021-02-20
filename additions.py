@@ -47,14 +47,11 @@ def check_if_file_exists(file_name):
             return True
 
         # If user wants to append file, notify and return False
-        elif decision in ['o', 'O', '0']:
+        if decision in ['o', 'O', '0']:
             print(clr.FAIL + "File will be overwritten!" + clr.DFLT)
             return False
-
-        # If user enters anything else, give notice and exit
-        else:
-            print("Incorrect input, try again.")
-            sys.exit(0)
+        print("Incorrect input, try again.")
+        sys.exit(0)
 
     # If file does not exist, return False
     else:

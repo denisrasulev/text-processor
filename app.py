@@ -16,8 +16,7 @@ def index():
         source = form.input.data
         form.outp.data = source.upper()
         return render_template('bodyleft.html', form=form)
-    else:
-        return render_template('bodyleft.html', form=form)
+    return render_template('bodyleft.html', form=form)
 
 
 @app.route('/about')
