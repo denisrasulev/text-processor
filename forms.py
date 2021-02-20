@@ -4,10 +4,12 @@ from wtforms.validators import DataRequired, Email, Length, Optional
 
 
 class TextForm(FlaskForm):
-    m_inp = u'Max length is 1000 symbols!'
+    # Maximum number of symbols allowed to enter into this field
+    max_len = 100
+    message = u'Max length is ' + str(max_len) + ' symbols.'
     input = TextAreaField(u'Source:',
-                          validators=[DataRequired(), Length(max=1000, message=m_inp)],
-                          render_kw={'class': 'form-control', 'rows': 5})
+                          validators=[DataRequired(), Length(max=max_len, message=message)],
+                          render_kw={'class': 'form-control', 'rows': 5, 'placeholder': message})
     outp = TextAreaField(u'Output:',
                          render_kw={'class': 'form-control', 'rows': 5, 'readonly': True})
     subm = SubmitField('Submit')

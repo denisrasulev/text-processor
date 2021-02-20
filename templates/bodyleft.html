@@ -11,8 +11,11 @@
       {{ form.csrf_token }}
       {{ form.hidden_tag() }}
       <dl>
-        <dt>Enter or paste URL or text (max 1000 symbols):</dt>
+        <dt>Enter or paste URL or text:</dt>
         <dd>{{ form.input }}</dd>
+        {% for error in form.input.errors %}
+          <dd style="color: red; font-size: small">{{ error }}</dd>
+        {% endfor %}
         <dd>{{ form.subm() }}</dd>
         <dt>Sample of the processed text:</dt>
         <dd>{{ form.outp }}</dd>
