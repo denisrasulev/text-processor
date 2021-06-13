@@ -11,7 +11,7 @@ import processors as procs
 # Create message colors instance
 color = addons.Color()
 
-version = "Text Processor. Ver 0.2 (c) 2017-2020 Denis Rasulev. All Rights " "Reserved."
+version = "Text Processor. Ver 0.2 (c) 2017-2021 Denis Rasulev. All Rights Reserved."
 
 # Description of what the tool does
 description = """
