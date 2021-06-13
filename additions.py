@@ -13,19 +13,21 @@ class Color:
     """Give human names to text coloring escape sequences"""
 
     def __init__(self):
-        self.OKGR = '\033[92m'  # ok      (green)
-        self.FAIL = '\033[31m'  # failure (red)
-        self.WARN = '\033[33m'  # warning (yellow)
-        self.DFLT = '\033[0m'  # default (normal)
-        self.BOLD = '\033[1m'  # bold    (emphasize)
+        self.OKGR = "\033[92m"  # ok      (green)
+        self.FAIL = "\033[31m"  # failure (red)
+        self.WARN = "\033[33m"  # warning (yellow)
+        self.DFLT = "\033[0m"  # default (normal)
+        self.BOLD = "\033[1m"  # bold    (emphasize)
 
 
 clr = Color()
 
 
 def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in Config.ALLOWED_EXTENSIONS
+    return (
+        "." in filename
+        and filename.rsplit(".", 1)[1].lower() in Config.ALLOWED_EXTENSIONS
+    )
 
 
 def check_if_file_exists(file_name):
@@ -36,21 +38,30 @@ def check_if_file_exists(file_name):
     # append or overwrite
     if os.path.exists(file_name):
         decision = input(
-            clr.WARN + "\nWarning: " + clr.DFLT +
-            "File '" + file_name + "' already exists.\n" "(" + clr.BOLD +
-            "A" + clr.DFLT + ")ppend (" "default)"" to it or (" + clr.BOLD +
-            "O" + clr.DFLT + ")verwrite it? ")
+            clr.WARN
+            + "\nWarning: "
+            + clr.DFLT
+            + "File '"
+            + file_name
+            + "' already exists.\n"
+            "(" + clr.FAIL + "A" + clr.DFLT + ")ppend ("
+            "default)"
+            " to it or (" + clr.FAIL + "O" + clr.DFLT + ")verwrite it? "
+        )
 
         # If user wants to overwrite file, notify and return True
-        if decision in ['a', 'A', '']:
-            print(clr.WARN + "Output file will be appended." + clr.DFLT)
+        if decision in ["a", "A", ""]:
+            # print(clr.WARN + "Output file will be appended." + clr.DFLT)
             return True
 
         # If user wants to append file, notify and return False
-        if decision in ['o', 'O', '0']:
-            print(clr.FAIL + "File will be overwritten!" + clr.DFLT)
+        elif decision in ["o", "O", "0"]:
+            # print(clr.FAIL + "File will be overwritten!" + clr.DFLT)
             return False
-        print("Incorrect input, try again.")
+
+        else:
+            print("Incorrect input, try again." + "\n")
+
         sys.exit(0)
 
     # If file does not exist, return False
@@ -61,22 +72,21 @@ def check_if_file_exists(file_name):
 def form_output(extension, text):
     """Convert processed word list to user selected file format - csv (default)
     or txt (one word per line)."""
-    return {
-        'csv': ', '.join(text),
-        'txt': '\n'.join(text)
-    }.get(extension, ', '.join(text))
+    return {"csv": ", ".join(text), "txt": "\n".join(text)}.get(
+        extension, ", ".join(text)
+    )
 
 
 # Function to get human readable size of file
 # https://stackoverflow.com/a/1094933/4440387
-def sizeof_fmt(size, suffix='bytes'):
+def sizeof_fmt(size, suffix="bytes"):
     """Return size of file in human readable format"""
 
-    for unit in ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z']:
+    for unit in ["", "K", "M", "G", "T", "P", "E", "Z"]:
         if abs(size) < 1024.0:
-            return '{:3.2f} {}{}'.format(size, unit, suffix)
+            return "{:3.2f} {}{}".format(size, unit, suffix)
         size /= 1024.0
-    return '{:0.2f} {}{}'.format(size, 'Y', suffix)
+    return "{:0.2f} {}{}".format(size, "Y", suffix)
 
 
 def count_char(text, char):
@@ -94,6 +104,7 @@ def count_lines(filename):
 
 def count_words(filename):
     return int(check_output(["wc", "-w", filename]).split()[0])
+
 
 # TODO: counting functions?
 # for char in "abcdefghijklmnopqrstuvwxyz":

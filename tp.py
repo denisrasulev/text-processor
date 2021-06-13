@@ -1,6 +1,7 @@
 # Import required modules
 import argparse
 import os
+import re
 import sys
 
 import requests
@@ -26,7 +27,7 @@ Shows short usage info.
 Shows this help message.
 
 > python3 tp.py SOURCE
-Script attempts to read SOURCE for further processing. 
+Script attempts to read SOURCE for further processing.
 
 Those elements are removed from the SOURCE by default:
 - punctuation
@@ -143,13 +144,28 @@ if args.ifile.startswith("http") or args.ifile.startswith("https"):
         # Override encoding by real educated guess as provided by chardet
         r.encoding = r.apparent_encoding
 
-        # Get content
-        source_text = r.text
+        # For getting text from HTML, check this: https://github.com/Alir3z4/html2text
 
-        # Set args and parameters if we process URL
-        # TODO: get domain to save as output file name
-        args.ofile = "url_content_cleaned" + extension
-        file_exists = addons.check_if_file_exists(args.ofile)
+        from urllib.request import urlopen
+        from bs4 import BeautifulSoup
+
+        html = urlopen(args.ifile).read()
+        soup = BeautifulSoup(html, features="html.parser")
+
+        # Kill all script and style elements
+        for script in soup(["script", "style"]):
+            script.extract()
+
+        # Get text
+        source_text = soup.get_text()
+
+        # For output file name, remove http(s) and www parts,
+        # then replace all slashes (if present) with undrescores
+        url = re.sub(r"(https?://)?(www\.)?", "", args.ifile, 1)
+        url = re.sub(r"/", "_", url)
+        args.ofile = url + extension
+
+        # For URL processing set these parameters to 0's
         size = 0
         lines = 0
         words = 0
@@ -179,28 +195,27 @@ else:
 # If output file format is ommited then construct new output file name
 if args.ofile is None:
     args.ofile = os.path.splitext(args.ifile)[0] + "_cleaned" + extension
-    file_exists = addons.check_if_file_exists(args.ofile)
 
 # Print received arguments and basic info
-print(color.WARN + "\nHere is what you selected to do:" + color.DFLT)
-print("Input")
-print("- file   : {}".format(args.ifile))
-print("- size   : {}".format(size))
-print("- lines  : {}".format(lines))
-print("- words  : {}".format(words))
-print()
-print("Output")
-print("- file   : {}".format(args.ofile))
-print("- format : {}".format(args.format))
-print("- status : {}".format("append" if file_exists else "overwrite"))
+print(color.WARN + "\nHere's what will be processed:" + color.DFLT)
+print("Input  : {}".format(args.ifile))
+print("Output : {}".format(args.ofile))
 
 # Confirm if user wants to continue
-answer = input(color.WARN + "\nProceed with text processing? (y/n): " + color.DFLT)
+answer = input(color.WARN + "Start processing? (y/n): " + color.DFLT)
 
 # If user cancels, notify and abort
-if answer not in ["y", "Y"]:
-    print(color.FAIL + "Operation aborted." + color.DFLT)
+if answer in ["y", "Y"]:
+    pass
+elif answer in ["n", "N"]:
+    print(color.FAIL + "Operation aborted." + color.DFLT + "\n")
     sys.exit(0)
+else:
+    print("Incorrect input, try again." + "\n")
+    sys.exit(0)
+
+# Check if file exits already and process this situation
+file_exists = addons.check_if_file_exists(args.ofile)
 
 # Text processing
 cleaned_text = procs.remove_html_tags(source_text)
@@ -231,6 +246,8 @@ else:
     # Write to file and close it
     f.write(out)
     f.close()
+
+print("\nProcessing completed.\n")
 
 # TODO: calculate size of all processed files and add it to the total number
 # TODO: all text to set and for each unique word count number of occurencies
