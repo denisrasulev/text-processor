@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "args": [
+                "https://www.worldbank.org/en/programs/scholarships"
+            ],
+            "console": "integratedTerminal"
+        }
+    ],
+    "compounds": []
+}
