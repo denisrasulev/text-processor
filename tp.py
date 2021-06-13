@@ -11,8 +11,7 @@ import processors as procs
 # Create message colors instance
 color = addons.Color()
 
-version = "Text Processor. Ver 0.2 (c) 2017-2020 Denis Rasulev. All Rights " \
-          "Reserved."
+version = "Text Processor. Ver 0.2 (c) 2017-2020 Denis Rasulev. All Rights " "Reserved."
 
 # Description of what the tool does
 description = """
@@ -61,24 +60,26 @@ epilog = version
 
 # Create arguments parser
 parser = argparse.ArgumentParser(
-    prog='tp.py',
+    prog="tp.py",
     add_help=False,
-    usage='%(prog)s source [-o output] [-f format]',
+    usage="%(prog)s source [-o output] [-f format]",
     formatter_class=argparse.RawDescriptionHelpFormatter,
     description=description,
-    epilog=epilog)
+    epilog=epilog,
+)
 
 # Add command line arguments
-parser.add_argument('ifile',
-                    metavar='SOURCE',
-                    help="source to be processed")
-parser.add_argument('-o', '--ofile',
-                    metavar='OUTPUT',
-                    help="specifies output file name")
-parser.add_argument('-f', '--format',
-                    metavar='FORMAT',
-                    default='csv',
-                    help="specifies output file format: csv or txt")
+parser.add_argument("ifile", metavar="SOURCE", help="source to be processed")
+parser.add_argument(
+    "-o", "--ofile", metavar="OUTPUT", help="specifies output file name"
+)
+parser.add_argument(
+    "-f",
+    "--format",
+    metavar="FORMAT",
+    default="csv",
+    help="specifies output file format: csv or txt",
+)
 
 # If script is called without any arguments, print short usage note and exit
 if len(sys.argv) == 1:
@@ -93,11 +94,11 @@ if len(sys.argv) == 1:
     sys.exit(0)
 
 # If script called with any argument requesting help, print help and exit
-if sys.argv[1] in ['?', '/?', '-h', '--help']:
+if sys.argv[1] in ["?", "/?", "-h", "--help"]:
     parser.print_help()
     sys.exit(0)
 
-if sys.argv[1] in ['-v', '--version']:
+if sys.argv[1] in ["-v", "--version"]:
     print(version)
     sys.exit(0)
 
@@ -106,7 +107,7 @@ args = parser.parse_args()
 
 # Default output file extension is .csv. If user specified .txt, then use it
 extension = ".csv"
-if args.format == 'txt':
+if args.format == "txt":
     extension = ".txt"
 
 # By default we say that output file exists, so we append to it rather than
@@ -114,7 +115,7 @@ if args.format == 'txt':
 file_exists = True
 
 # If user provided URL as a SOURCE
-if args.ifile.startswith('http') or args.ifile.startswith('https'):
+if args.ifile.startswith("http") or args.ifile.startswith("https"):
 
     # Connect to the requested URL
     try:
@@ -128,15 +129,17 @@ if args.ifile.startswith('http') or args.ifile.startswith('https'):
         sys.exit(1)
 
     # We shall process only these types of contents
-    allowed_content_types = ['text/plain',
-                             'text/html',
-                             'text/xml',
-                             'text/csv',
-                             'text/css',
-                             'application/xml',
-                             'application/json']
+    allowed_content_types = [
+        "text/plain",
+        "text/html",
+        "text/xml",
+        "text/csv",
+        "text/css",
+        "application/xml",
+        "application/json",
+    ]
 
-    if r.headers['content-type'].split(';')[0] in allowed_content_types:
+    if r.headers["content-type"].split(";")[0] in allowed_content_types:
         # Override encoding by real educated guess as provided by chardet
         r.encoding = r.apparent_encoding
 
@@ -145,7 +148,7 @@ if args.ifile.startswith('http') or args.ifile.startswith('https'):
 
         # Set args and parameters if we process URL
         # TODO: get domain to save as output file name
-        args.ofile = 'url_content_cleaned' + extension
+        args.ofile = "url_content_cleaned" + extension
         file_exists = addons.check_if_file_exists(args.ofile)
         size = 0
         lines = 0
@@ -154,13 +157,13 @@ if args.ifile.startswith('http') or args.ifile.startswith('https'):
     # If URL contains anything else, except what we can process, notify and exit
     else:
         print("Requested URL has different content than text, xml or json)")
-        print("Content type:", r.headers['content-type'])
+        print("Content type:", r.headers["content-type"])
         sys.exit(1)
 
 # If input is not URL, then we suppose it's file
 else:
     try:
-        f = open(args.ifile, 'r')
+        f = open(args.ifile, "r")
     except OSError as e:
         print("Cannot open", args.ifile)
         print("Error:", e)
@@ -179,21 +182,23 @@ if args.ofile is None:
     file_exists = addons.check_if_file_exists(args.ofile)
 
 # Print received arguments and basic info
+print(color.WARN + "\nHere is what you selected to do:" + color.DFLT)
 print("Input")
 print("- file   : {}".format(args.ifile))
 print("- size   : {}".format(size))
 print("- lines  : {}".format(lines))
 print("- words  : {}".format(words))
+print()
 print("Output")
 print("- file   : {}".format(args.ofile))
 print("- format : {}".format(args.format))
-print("- status : {}".format('append' if file_exists else 'overwrite'))
+print("- status : {}".format("append" if file_exists else "overwrite"))
 
 # Confirm if user wants to continue
-answer = input(color.WARN + "\nProceed? (y/n): " + color.DFLT)
+answer = input(color.WARN + "\nProceed with text processing? (y/n): " + color.DFLT)
 
 # If user cancels, notify and abort
-if answer not in ['y', 'Y']:
+if answer not in ["y", "Y"]:
     print(color.FAIL + "Operation aborted." + color.DFLT)
     sys.exit(0)
 
@@ -203,13 +208,13 @@ cleaned_text = procs.remove_punctuation(cleaned_text)
 cleaned_text = procs.remove_extra_spaces(cleaned_text)
 cleaned_text = procs.remove_single_chars(cleaned_text)
 cleaned_text = procs.remove_digits(cleaned_text)
-cleaned_text = cleaned_text.split(' ')
+cleaned_text = cleaned_text.split(" ")
 cleaned_text = [x.lower() for x in cleaned_text]
 cleaned_text = set(cleaned_text)
 cleaned_text = sorted(cleaned_text)
 
 # Select output file write mode - append or overwrite
-write_mode = 'a' if file_exists else 'w'
+write_mode = "a" if file_exists else "w"
 
 # Open file in selected mode
 try:
@@ -231,3 +236,5 @@ else:
 # TODO: all text to set and for each unique word count number of occurencies
 # TODO: count number of words and show top 30? 50? 100? most frequent ones
 # TODO: Entities extraction options - names, places, e-mails, etc?
+# * Change warnings information order - Setup first, warning later
+# ! Process unknown arguments with text and help
